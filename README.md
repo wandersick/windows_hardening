@@ -1,34 +1,53 @@
-# windows_hardening
+# Automated Windows Server Hardening with Chef
 
-Chef cookbook for IaC hardening Microsoft Windows Servers without relying on group policy.
+These Windows Server hardening Chef recipes forked from [MattTunny/windows_hardening](https://github.com/MattTunny/windows_hardening) repository differ from the original in being compatible with `chef-apply`, converted by wandersick as inspired by readers' feedback of his blog post, [Quick Windows Hardening with Infrastructure-as-Code – Chef and Inspec](https://wandersick.blogspot.com/2018/04/windows-server-hardening-with-chef.html). For details, please refer to the Performing Hardening section of the blog post.
 
-#### Microsoft Windows Server with the following guides:
+A test run has been performed with the results logged and [documented here](https://github.com/wandersick/windows_hardening/blob/master/TESTRUN.md).
 
-#### Center for Internet Security (CIS)
-- Windows 2012 
-- https://benchmarks.cisecurity.org/tools2/windows/CIS_Microsoft_Windows_Server_2012_non-R2_Benchmark_v2.0.1.pdf
-- Windows 2012R2
-- https://benchmarks.cisecurity.org/tools2/windows/CIS_Microsoft_Windows_Server_2012_R2_Benchmark_v2.2.1.pdf
+List of files:
 
-#### Group Policy refrences:
-- https://msdn.microsoft.com/en-au/library/ms815238.aspx
-- https://www.microsoft.com/en-au/download/details.aspx?id=25250
-- https://www.stigviewer.com/stig/microsoft_windows_server_2012_member_server/  
-
-#### To run all test locally
-```bash
-kitchen verify
+```
+windows_hardening
+│   LICENSE
+│   metadata.rb
+│   README.md
+│   TESTRUN.md
+│
+├───files
+│       audit_settings.csv
+│       localComputer.inf
+│       windows_update.ps1
+│
+├───recipes
+│       ciphers.rb
+│       core_hardening.rb
+│       deleteautologon.rb
+│       enable_firewall.rb
+│       enable_winrm.rb
+│       harden_ntlm.rb
+│       harden_winrm.rb
+│       schedule_task_update.rb
+│       windowsupdate.rb
+│
+└───test
+    └───integration
+        └───default
+                default_spec.rb
 ```
 
-#### To run all tests in domain
-```bash
-kitchen converge production
-kitchen converge production
-kitchen verify production
-```
+If unmodified, the script should be stored and run under `c:\temp\windows_hardening` where:
 
-#### To run all tests remote | Password requires '' or ""
-```bash
-inspec exec test/integration/default/default_spec.rb -t winrm://username@192.168.0.12 --password 'password'
-```
+- `C:\temp\windows_hardening\recipes` contains recipes such as `core_hardening.rb`
+- `C:\temp\windows_hardening\test\integration\default` contains `inspec` tests, i.e. `default_spec.rb`
+- `C:\temp\windows_hardening\files` contains supplementary files, i.e. `audit_settings.csv`, `localComputer.inf` and `windows_update.ps1`
+- Also, temporary file `tempexport.inf` would be generated under `C:\temp\` when `inspec` (test) is run, and `secedit.sdb` (also `secedit.jfm`) in `C:\temp\windows_hardening\files` when `chef-apply` is run. Be sure to have write permission in those directories
 
+If the script is run from another location, the hard-coded paths in the recipes (i.e. the above entries involving `temp` folder under `C:\`) should be modified.
+
+For recipe-specific instructions, refer to comments in each recipe file.
+
+<hr>
+
+For the original README.md content, refer to [MattTunny/windows_hardening](https://github.com/MattTunny/windows_hardening)
+
+Note: The commands in the original README.md there are unsuitable if you follow the [blog post](https://wandersick.blogspot.com/2018/04/windows-server-hardening-with-chef.html) which is compatible with `chef-apply`

@@ -1,3 +1,43 @@
+# wandersick comments:
+
+# - Under 'System Policys', modify legalnoticecaption and legalnoticetext as needed which are for displaying on logon
+
+# - Adjust 'c:\\temp\\...'' or 'c:/temp/...'' in this script (and in test\integration\default\default_sepc.rb)
+#   to your path containing the script e.g. c:/temp/windows_hardening
+
+# - Under 'Script to apply settings that can't be down in registry'
+#   Change value of cwd to a path containing localComputer.inf and audit_settings.csv 
+#   (if unchanged, the default setting assumes 'c:/temp/windows_hardening/files' contains the files)
+#   a. Local Security Policy - files/localComputer.inf
+#   b. Reg Files for save applications - files/audit_settings.csv 
+
+# - Below Lines have been removed by WS to avoid errors when using this recipe with chef-apply
+#   For the directories or files below, please specify them using the above method instead
+
+#   # Force Windows Update
+#     directory 'c:/temp' do
+#       action :create
+#     end
+
+#   # Local Security Policy
+#     cookbook_file 'c:/temp/localComputer.inf' do
+#       action :create
+#     end
+
+#   # Reg Files for save applications
+#     cookbook_file 'c:/temp/audit_settings.csv' do
+#       action :create
+#     end
+
+# - UAC consideration
+#   To disable UAC, EnableLUA in this recipe should be set to 0
+
+# - To eliminiate cross-domain lookup error `"Some of the object names cannot be shown in their user-friendly form
+#   (This can happen if the object is from an external domain and that domain is not available to translate the object's name"`)
+#   This group policy has to be set to `not defined`:
+#   `Enable RPC Endpoint Mapper Client Authentication` (under Machine System\Remote Procedure Call)
+#   In other words, EnableAuthEpResolution has to be removed from this recipe
+
 # Winlogon Settings
 registry_key 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon' do
   values [{ name: 'PasswordExpiryWarning', type: :dword, data: 14 },
@@ -11,6 +51,9 @@ registry_key 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Wi
 end
 
 # LSA settings
+# wandersick comments: consider removing LmCompatibilityLevel (also in test/integration/default/default_spec.rb)
+#              if old printer/scanner/copiers are in use requiring scanning to shared folders
+
 registry_key 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa' do
   values [ # { name: 'fullprivilegeauditing', type: :binary, data: 01 }, Removed due to 31 value being passed through chef, added powershell script below
     { name: 'AuditBaseObjects', type: :dword, data: 0 },
@@ -93,6 +136,7 @@ registry_key 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip6\Parame
 end
 
 # System Policys
+# wandersick comments: Modify legalnoticecaption and legalnoticetext as needed which are for displaying on logon
 registry_key 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System' do
   values [{ name: 'ConsentPromptBehaviorUser', type: :dword, data: 0 },
           { name: 'EnableLUA', type: :dword, data: 1 },
@@ -671,24 +715,13 @@ registry_key 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpda
   action :create
 end
 
-# Force Windows Update
-directory 'c:/temp' do
-  action :create
-end
-
-# Local Security Policy
-cookbook_file 'c:/temp/localComputer.inf' do
-  action :create
-end
-
-# Reg Files for save applications
-cookbook_file 'c:/temp/audit_settings.csv' do
-  action :create
-end
-
-# Script to apply settings that can't be down in registry'
+# Script to apply settings that can't be down in registry
+# wandersick comments: Change value of cwd to a path containing localComputer.inf and audit_settings.csv 
+#          (if unchanged, it assumes 'c:\temp\windows_hardening\files' contains the files)
+#          a. Local Security Policy - files/localComputer.inf
+#          b. Reg Files for save applications - files/audit_settings.csv 
 powershell_script 'import' do
-  cwd 'c:/temp'
+  cwd 'c:/temp/windows_hardening/files'
   code <<-EOH
     secedit /import /db secedit.sdb /cfg localComputer.inf
     secedit /configure /db secedit.sdb

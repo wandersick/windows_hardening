@@ -1,3 +1,7 @@
+; wandersick comments:
+; - Beware of NewAdministratorName and NewGuestName which has '_' as the prefix.
+;   After hardening, '_Administrator' has to be used for local login depending on whether other accounts are available
+; - You may wish to modify parameters, e.g. MinimumPasswordLength and MaximumPasswordAge
 [Unicode]
 Unicode=yes
 [System Access]

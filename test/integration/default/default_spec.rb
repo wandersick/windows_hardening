@@ -5,6 +5,8 @@
 # The Inspec reference, with examples and extensive documentation, can be
 # found at http://inspec.io/docs/reference/resources/
 
+# wandersick comments: Adjust 'c:\\temp\\'' below as required. Make sure the directory exists
+
 # WinLogon Tests
 describe registry_key('HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon') do
   its('PasswordExpiryWarning') { should eq 14 }
@@ -16,6 +18,8 @@ describe registry_key('HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentV
 end
 
 # LSA tests
+# wandersick comments: consider removing LmCompatibilityLevel (also in recipes/core_hardening.rb)
+#              if old printer/scanner/copiers are in use requiring scanning to shared folders
 describe registry_key('HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa') do
   its('FullPrivilegeAuditing') { should eq [0o0] }
   its('AuditBaseObjects') { should eq 0 }
@@ -97,10 +101,6 @@ describe registry_key('HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVers
   its('EnableInstallerDetection') { should eq 1 }
   its('DisableCAD') { should eq 0 }
   its('ShutdownWithoutLogon') { should eq 0 }
-  its('legalnoticecaption') { should eq 'Company Logon Warning' }
-  its('legalnoticetext') do
-    should eq 'Warning text goes here...'
-  end
 end
 
 # LanMan Server Tests
