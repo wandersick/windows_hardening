@@ -1,6 +1,6 @@
 # Automated Windows Server Hardening with Chef
 
-These Windows Server hardening Chef recipes forked from [MattTunny/windows_hardening](https://github.com/MattTunny/windows_hardening) repository differ from the original in being compatible with `chef-apply`, converted by wandersick as inspired by readers' feedback of his blog post, [Quick Windows Hardening with Infrastructure-as-Code – Chef and Inspec](https://wandersick.blogspot.com/2018/04/windows-server-hardening-with-chef.html). For details, please refer to the Performing Hardening section of the blog post.
+These Windows Server hardening Chef recipes forked from [MattTunny/windows_hardening](https://github.com/MattTunny/windows_hardening) repository differ from the original in being compatible with `chef-apply`, converted by wandersick as inspired by readers' feedback of his blog post, [Quick Windows Hardening with Infrastructure-as-Code – Chef and Inspec](https://tech.wandersick.com/2018/04/windows-server-hardening-with-chef.html). For details, please refer to the Performing Hardening section of the blog post.
 
 A test run has been performed with the results logged and [documented here](https://github.com/wandersick/windows_hardening/blob/master/TESTRUN.md).
 
@@ -50,4 +50,4 @@ For recipe-specific instructions, refer to comments in each recipe file.
 
 For the original README.md content, refer to [MattTunny/windows_hardening](https://github.com/MattTunny/windows_hardening)
 
-Note: The commands in the original README.md there are unsuitable if you follow the [blog post](https://wandersick.blogspot.com/2018/04/windows-server-hardening-with-chef.html) which is compatible with `chef-apply`
+Note: The commands in the original README.md there are unsuitable if you follow the [blog post](https://tech.wandersick.com/2018/04/windows-server-hardening-with-chef.html) which is compatible with `chef-apply`
