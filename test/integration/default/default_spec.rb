@@ -18,8 +18,19 @@ describe registry_key('HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentV
 end
 
 # LSA tests
-# wandersick comments: consider removing LmCompatibilityLevel (also in recipes/core_hardening.rb)
-#              if old printer/scanner/copiers are in use requiring scanning to shared folders
+
+# wandersick comments:
+
+# - Consider removing LmCompatibilityLevel (also in recipes/core_hardening.rb)
+#   if old printer/scanner/copiers are in use requiring scanning to shared folders
+
+# - LmCompatibilityLevel of 5 may affect Remote Desktop session between a server and client
+#   (error: "The logon attempt failed") if the client side does not negotiate in NTLMv2 but NTLM/LM
+
+# - If the hardened computer is a domain member, LmCompatibilityLevel of 5 may feels like
+#   local accounts cannot be authenticated but domain accounts can, as the latter depends
+#   on the setting of Active Directory (AD) Domain Controllers (DC) instead
+
 describe registry_key('HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa') do
   its('FullPrivilegeAuditing') { should eq [0o0] }
   its('AuditBaseObjects') { should eq 0 }
@@ -48,6 +59,16 @@ describe registry_key('HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa\F
 end
 
 # Netlogon Tests
+
+# wandersick comments:
+
+# - 'RestrictNTLMInDomain' may prevent an Active Directory (AD) Domain Controller (DC)
+#   Remote Desktop sessions with Network Level Authentication (NLA), which fails with the below error:
+
+#   - An authentication error has occurred
+#   - The function requested is not supported
+#   - This could be due to CredSSP encryption oracle remediation
+
 describe registry_key('HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Netlogon\Parameters') do
   its('MaximumPasswordAge') { should eq 30 }
   its('DisablePasswordChange') { should eq 0 }

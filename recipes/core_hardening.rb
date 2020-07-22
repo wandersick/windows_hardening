@@ -51,8 +51,18 @@ registry_key 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Wi
 end
 
 # LSA settings
-# wandersick comments: consider removing LmCompatibilityLevel (also in test/integration/default/default_spec.rb)
-#              if old printer/scanner/copiers are in use requiring scanning to shared folders
+
+# wandersick comments: 
+
+# - Consider removing LmCompatibilityLevel (also in test/integration/default/default_spec.rb)
+#   if old printer/scanner/copiers are in use requiring scanning to shared folders
+
+# - LmCompatibilityLevel of 5 may affect Remote Desktop session between a server and client
+#   (error: "The logon attempt failed") if the client side does not negotiate in NTLMv2 but NTLM/LM
+
+# - If the hardened computer is a domain member, LmCompatibilityLevel of 5 may feels like
+#   local accounts cannot be authenticated but domain accounts can, as the latter depends
+#   on the setting of Active Directory (AD) Domain Controllers (DC) instead
 
 registry_key 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa' do
   values [ # { name: 'fullprivilegeauditing', type: :binary, data: 01 }, Removed due to 31 value being passed through chef, added powershell script below
@@ -101,6 +111,16 @@ registry_key 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa\FIPSAlgori
 end
 
 # Netlogon Parameters
+
+# wandersick comments:
+
+# - 'RestrictNTLMInDomain' may prevent an Active Directory (AD) Domain Controller (DC)
+#   Remote Desktop sessions with Network Level Authentication (NLA), which fails with the below error:
+
+#   - An authentication error has occurred
+#   - The function requested is not supported
+#   - This could be due to CredSSP encryption oracle remediation
+
 registry_key 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Netlogon\Parameters' do
   values [{ name: 'MaximumPasswordAge', type: :dword, data: 30 },
           { name: 'DisablePasswordChange', type: :dword, data: 0 },
